@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
         i++;
 
         if (iterations != 0) {
-            if (i > iterations)
+            if (i >= iterations)
                 break;
         } 
     }
