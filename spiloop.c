@@ -23,6 +23,7 @@
 #define DEFAULT_ITERATIONS 1
 
 void usage();
+void summarize(int count, struct timespec *start, struct timespec *end);
 void dump_data(char *prompt, uint8_t *buff, int count);
 void register_sig_handler();
 void sigint_handler(int sig);
@@ -56,6 +57,8 @@ int main(int argc, char *argv[])
     int i;
     struct spi_ioc_transfer tr;
     char device[64];
+    struct timespec start;
+    struct timespec end;
 
     memset(device, 0, sizeof(device));
     strcpy(device, DEFAULT_DEVICE);
@@ -143,6 +146,8 @@ int main(int argc, char *argv[])
     tr.rx_buf = (unsigned long)rx;
     tr.len = count;
 
+    clock_gettime(CLOCK_MONOTONIC, &start);
+
     i = 0;
     while (!abort_transfers) {
         memset(tx, (i & 0xff), count);
@@ -164,11 +169,40 @@ int main(int argc, char *argv[])
         } 
     }
 
-    printf("\nStopped after %d transfers\n", i);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+
+    summarize(i, &start, &end);
 
     close(fd);
 
     return 0;
+}
+
+void summarize(int count, struct timespec *start, struct timespec *end)
+{
+    double diff;
+    double rate;
+
+    if (end->tv_nsec > start->tv_nsec) {
+        diff = end->tv_nsec - start->tv_nsec;
+    }
+    else {
+        diff = (1000000000 + end->tv_nsec) - start->tv_nsec;
+        end->tv_sec--;
+    }
+
+    diff /= 1000000000.0;
+
+    diff += end->tv_sec - start->tv_sec;
+
+    if (diff > 0.0)
+        rate = count / diff;
+    else
+        rate = 0.0;
+
+    printf("\nElapsed   : %0.2lf seconds\n", diff);
+    printf("Transfers : %d\n", count);
+    printf("Rate      : %0.2lf transfers/sec\n\n", rate);
 }
 
 void dump_data(char *prompt, uint8_t *buff, int count)
