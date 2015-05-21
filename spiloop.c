@@ -141,8 +141,7 @@ int main(int argc, char *argv[])
 
     memset(&tr, 0, sizeof(tr));
 
-    tr.tx_buf = (unsigned long)&tx;
-    tr.len = count;
+    tr.tx_buf = (unsigned long)tx;
     tr.rx_buf = (unsigned long)rx;
     tr.len = count;
 
