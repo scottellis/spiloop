@@ -29,7 +29,7 @@ void register_sig_handler();
 void sigint_handler(int sig);
 void msleep(int ms);
 
-int abort_transfers = 0;
+volatile int abort_transfers = 0;
 
 void usage()
 {
