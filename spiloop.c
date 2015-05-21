@@ -115,8 +115,8 @@ int main(int argc, char *argv[])
         }
     }
 
-	fd = open(device, O_RDWR);
-	if (fd < 0) {
+    fd = open(device, O_RDWR);
+    if (fd < 0) {
         perror("open");
         exit(1);
     }
