@@ -27,7 +27,6 @@ void summarize(int count, struct timespec *start, struct timespec *end);
 void dump_data(char *prompt, uint8_t *buff, int count);
 void register_sig_handler();
 void sigint_handler(int sig);
-void msleep(int ms);
 
 volatile int abort_transfers = 0;
 
@@ -235,12 +234,3 @@ void sigint_handler(int sig)
     abort_transfers = 1;
 }
 
-void msleep(int ms)
-{
-    struct timespec ts;
-
-    ts.tv_sec = ms / 1000;
-    ts.tv_nsec = (ms % 1000) * 1000000;
-
-    nanosleep(&ts, NULL);
-}
