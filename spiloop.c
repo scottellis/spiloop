@@ -147,9 +147,10 @@ int main(int argc, char *argv[])
     clock_gettime(CLOCK_MONOTONIC, &start);
 
     i = 0;
+    memset(rx, 0, bytes);
+
     while (!abort_transfers) {
         memset(tx, (i & 0xff), bytes);
-        memset(rx, 0, bytes);
 
         if (verbose)
             dump_data("tx", tx, bytes);
