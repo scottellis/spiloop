@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
     uint8_t rx[MAX_SPIDEV_DATA];
     int i;
     struct spi_ioc_transfer tr;
-    char device[64];
+    char device[32];
     struct timespec start;
     struct timespec end;
 
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
             break;
 
         case 'd':
-            if (strlen(optarg) == 0 || strlen(optarg) > sizeof(device) - 2) {
+            if (strlen(optarg) == 0 || strlen(optarg) > sizeof(device) - 1) {
                 printf("\nInvalid device: %s\n", optarg);
                 usage();
             }
