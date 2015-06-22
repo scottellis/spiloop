@@ -19,7 +19,7 @@
 
 #define DEFAULT_DEVICE "/dev/spidev1.0"
 #define MAX_SPIDEV_DATA 4096
-#define DEFAULT_TRANSFER_COUNT 32
+#define DEFAULT_TRANSFER_BYTES 32
 #define DEFAULT_ITERATIONS 1
 
 void usage();
@@ -36,7 +36,7 @@ void usage()
     printf("\nUsage: spiloop [-s <speed>] [-d <device>] [-c <count>] [-i <iterations>] [-vh]\n");
     printf("  -s <speed>      Set SPI bus speed in Hz\n");
     printf("  -d <device>     Device, defaults to /dev/spidev1.0\n");
-    printf("  -c <count>      Number of bytes to transfer, default is 32, max is 4096\n"); 
+    printf("  -b <bytes>      Number of bytes per transfer, default 32, min 1, max 4096\n"); 
     printf("  -i <iterations> Number of times to repeat, default is 1, 0 means forever\n");
     printf("  -v              Be verbose\n");
     printf("  -h              Show this help\n\n");  
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     int opt, fd;
     uint32_t speed = 0;
     int iterations = DEFAULT_ITERATIONS;    
-    int count = DEFAULT_TRANSFER_COUNT;
+    int bytes = DEFAULT_TRANSFER_BYTES;
     int verbose = 0;
     uint8_t tx[MAX_SPIDEV_DATA];
     uint8_t rx[MAX_SPIDEV_DATA];
@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
     memset(device, 0, sizeof(device));
     strcpy(device, DEFAULT_DEVICE);
  
-    while ((opt = getopt(argc, argv, "s:d:c:i:vh")) != -1) {
+    while ((opt = getopt(argc, argv, "s:d:b:i:vh")) != -1) {
         switch (opt) {
         case 's':
             speed = atoi(optarg);
@@ -85,10 +85,10 @@ int main(int argc, char *argv[])
             break;
 
         case 'c':
-            count = atoi(optarg);
+            bytes = atoi(optarg);
 
-            if (count < 1 || count > MAX_SPIDEV_DATA) {
-                printf("\nInvalid count: %s\n", optarg);
+            if (bytes < 1 || bytes > MAX_SPIDEV_DATA) {
+                printf("\nInvalid byte count: %s\n", optarg);
                 usage();
             }
 
@@ -143,22 +143,22 @@ int main(int argc, char *argv[])
 
     tr.tx_buf = (unsigned long)tx;
     tr.rx_buf = (unsigned long)rx;
-    tr.len = count;
+    tr.len = bytes;
 
     clock_gettime(CLOCK_MONOTONIC, &start);
 
     i = 0;
     while (!abort_transfers) {
-        memset(tx, (i & 0xff), count);
-        memset(rx, 0, count);
+        memset(tx, (i & 0xff), bytes);
+        memset(rx, 0, bytes);
 
         if (verbose)
-            dump_data("tx", tx, count);
+            dump_data("tx", tx, bytes);
 
         if (ioctl(fd, SPI_IOC_MESSAGE(1), &tr) < 1)
             perror("ioctl(SPI_IOC_MESSAGE)");
         else if (verbose)
-            dump_data("rx", rx, count);
+            dump_data("rx", rx, bytes);
 
         i++;
 
