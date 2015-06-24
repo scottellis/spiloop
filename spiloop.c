@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
             strcpy(device, optarg); 
             break;
 
-        case 'c':
+        case 'b':
             bytes = atoi(optarg);
 
             if (bytes < 1 || bytes > MAX_SPIDEV_DATA) {
